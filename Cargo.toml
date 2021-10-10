@@ -1,0 +1,19 @@
+[package]
+name = "distr"
+version = "0.1.0"
+authors = ["Cris Liao <clia@163.com>"]
+edition = "2018"
+description = "A Simple Web Server"
+readme = "README.md"
+keywords = ["distr", "web", "server", "autossl", "letsencrypt"]
+repository = "https://github.com/clia/distr.git"
+categories = ["network-programming", "asynchronous",
+              "web-programming::http-server"]
+
+[dependencies]
+ntex = "0.3"
+ntex-files = { git = "https://github.com/ntex-rs/ntex-extras.git" }
+ntex-session = { git = "https://github.com/ntex-rs/ntex-extras.git" }
+futures = "0.3"
+env_logger = "0.8"
+bytes = "1.0"
