@@ -1,11 +1,14 @@
 use std::{env, io};
 
+use anyhow::Result;
 use bytes::Bytes;
 use ntex::channel::mpsc;
 use ntex::http::{header, Method, StatusCode};
 use ntex::web::{self, error, guard, middleware, App, Error, HttpRequest, HttpResponse};
 use ntex_files as fs;
 use ntex_session::{CookieSession, Session};
+
+mod config;
 
 /// favicon handler
 #[web::get("/favicon")]
@@ -50,10 +53,7 @@ async fn response_body(path: web::types::Path<String>) -> HttpResponse {
 }
 
 /// handler with path parameters like `/user/{name}/`
-async fn with_param(
-    req: HttpRequest,
-    path: web::types::Path<(String,)>,
-) -> HttpResponse {
+async fn with_param(req: HttpRequest, path: web::types::Path<(String,)>) -> HttpResponse {
     println!("{:?}", req);
 
     HttpResponse::Ok()
@@ -62,9 +62,12 @@ async fn with_param(
 }
 
 #[ntex::main]
-async fn main() -> io::Result<()> {
+async fn main() -> Result<()> {
     env::set_var("RUST_LOG", "ntex=info");
     env_logger::init();
+
+    let server_config = config::ServerConfig::load_config()?;
+    println!("{:?}", server_config);
 
     web::server(|| {
         App::new()
@@ -119,5 +122,7 @@ async fn main() -> io::Result<()> {
     })
     .bind("0.0.0.0:80")?
     .run()
-    .await
+    .await?;
+
+    Ok(())
 }

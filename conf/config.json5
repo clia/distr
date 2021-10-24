@@ -1,0 +1,38 @@
+// Web server config
+{
+    // Basic config
+    "base": {
+        // Running Enviroment: dev, test, prod
+        "env": "dev"
+    },
+    // HTTP config
+    "http": {
+        // outer http port
+        "outer_port": 80,
+        // outer https port
+        "outer_ssl_port": 443,
+        // inner http port
+        "inner_port": 20080,
+        // inner https port
+        "inner_ssl_port": 20443
+    },
+    // Serving sites
+    "sites": [{
+        // comma/space seperated multi host config
+        "hosts": "a.com, *.a.com",
+        // site root dir
+        "root": "/www/a.com"
+    }, {
+        // comma/space seperated multi host config
+        "hosts": "b.com, *.b.com",
+        // site root dir
+        "root": "/www/b.com",
+        // reverse proxy settings
+        "proxy": {
+            // config proxy host, with schema and port
+            "host": "https://some.proxy.com",
+            // exclude some path, use local file
+            "exclude": ["/some-path"]
+        }
+    }]
+}
