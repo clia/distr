@@ -120,7 +120,8 @@ async fn main() -> Result<()> {
                     ),
             )
     })
-    .bind("0.0.0.0:80")?
+    .bind(format!("0.0.0.0:{}", server_config.http.outer_port))?
+    .bind(format!("0.0.0.0:{}", server_config.http.outer_ssl_port))?
     .run()
     .await?;
 
