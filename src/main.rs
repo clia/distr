@@ -75,50 +75,55 @@ async fn main() -> Result<()> {
             .wrap(CookieSession::signed(&[0; 32]).secure(false))
             // enable logger - always register actix-web Logger middleware last
             .wrap(middleware::Logger::default())
-            .service((
-                // register favicon
-                favicon,
-                // register simple route, handle all methods
-                welcome,
-                // with path parameters
-                web::resource("/user/{name}").route(web::get().to(with_param)),
-                // async response body
-                web::resource("/async-body/{name}").route(web::get().to(response_body)),
-                web::resource("/test").to(|req: HttpRequest| async move {
-                    match *req.method() {
-                        Method::GET => HttpResponse::Ok(),
-                        Method::POST => HttpResponse::MethodNotAllowed(),
-                        _ => HttpResponse::NotFound(),
-                    }
-                }),
-                web::resource("/error").to(|| async {
-                    error::InternalError::new(
-                        io::Error::new(io::ErrorKind::Other, "test"),
-                        StatusCode::INTERNAL_SERVER_ERROR,
-                    )
-                }),
+            .service(
                 // static files
-                fs::Files::new("/static", "static").show_files_listing(),
-                // redirect
-                web::resource("/").route(web::get().to(|req: HttpRequest| async move {
-                    println!("{:?}", req);
-                    HttpResponse::Found()
-                        .header(header::LOCATION, "static/welcome.html")
-                        .finish()
-                })),
-            ))
-            // default
-            .default_service(
-                // 404 for GET request
-                web::resource("")
-                    .route(web::get().to(p404))
-                    // all requests that are not `GET`
-                    .route(
-                        web::route()
-                            .guard(guard::Not(guard::Get()))
-                            .to(|| async { HttpResponse::MethodNotAllowed() }),
-                    ),
+                fs::Files::new("/", "./static/").index_file("welcome.html"),
             )
+
+            // .service((
+            //     // register favicon
+            //     favicon,
+            //     // register simple route, handle all methods
+            //     welcome,
+            //     // with path parameters
+            //     web::resource("/user/{name}").route(web::get().to(with_param)),
+            //     // async response body
+            //     web::resource("/async-body/{name}").route(web::get().to(response_body)),
+            //     web::resource("/test").to(|req: HttpRequest| async move {
+            //         match *req.method() {
+            //             Method::GET => HttpResponse::Ok(),
+            //             Method::POST => HttpResponse::MethodNotAllowed(),
+            //             _ => HttpResponse::NotFound(),
+            //         }
+            //     }),
+            //     web::resource("/error").to(|| async {
+            //         error::InternalError::new(
+            //             io::Error::new(io::ErrorKind::Other, "test"),
+            //             StatusCode::INTERNAL_SERVER_ERROR,
+            //         )
+            //     }),
+            //     // static files
+            //     fs::Files::new("/static", "static").show_files_listing(),
+            //     // redirect
+            //     web::resource("/").route(web::get().to(|req: HttpRequest| async move {
+            //         println!("{:?}", req);
+            //         HttpResponse::Found()
+            //             .header(header::LOCATION, "static/welcome.html")
+            //             .finish()
+            //     })),
+            // ))
+            // // default
+            // .default_service(
+            //     // 404 for GET request
+            //     web::resource("")
+            //         .route(web::get().to(p404))
+            //         // all requests that are not `GET`
+            //         .route(
+            //             web::route()
+            //                 .guard(guard::Not(guard::Get()))
+            //                 .to(|| async { HttpResponse::MethodNotAllowed() }),
+            //         ),
+            // )
     })
     .bind(format!("0.0.0.0:{}", server_config.http.outer_port))?
     .bind(format!("0.0.0.0:{}", server_config.http.outer_ssl_port))?
